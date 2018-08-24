@@ -40,7 +40,7 @@ class CreateTenant extends Command
     {
         $name = $this->argument('name');
         $email = $this->argument('email');
-        $fqdn = $name.'.'.config('app.url_base');
+        $fqdn = ($name=="home"?'':$name.'.').config('app.url_base');
 
         if ($this->tenantExists($fqdn)) {
             $this->error("A tenant with name '{$name}' already exists.");

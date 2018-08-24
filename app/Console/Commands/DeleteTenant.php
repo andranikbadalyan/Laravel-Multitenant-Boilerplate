@@ -4,9 +4,6 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 
-use App\User;
-use Hyn\Tenancy\Environment;
-use Hyn\Tenancy\Models\Website;
 use Hyn\Tenancy\Contracts\Repositories\WebsiteRepository;
 use Hyn\Tenancy\Models\Hostname;
 use Hyn\Tenancy\Contracts\Repositories\HostnameRepository;
@@ -40,7 +37,7 @@ class DeleteTenant extends Command
         }
 
         $name = $this->argument('name');
-        $fqdn = $name.'.'.config('app.url_base');
+        $fqdn = ($name=="home"?'':$name.'.').config('app.url_base');
 
         $this->deleteTenant($fqdn);
     }
@@ -48,6 +45,10 @@ class DeleteTenant extends Command
     private function deleteTenant($fqdn)
     {
         $hostname = Hostname::where('fqdn', $fqdn)->first();
+        if(!$hostname){
+            $this->error("Tenant {$fqdn} doesn't exist.");
+            return;
+        }
         app(HostnameRepository::class)->delete($hostname, true);
         app(WebsiteRepository::class)->delete($hostname->website, true);
 
